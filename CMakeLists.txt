@@ -116,7 +116,7 @@ endif()
 # Note to developers: if you add an option below, make sure you also add it to
 # cmake/Summary.cmake so that the summary prints out the option values.
 include(CMakeDependentOption)
-option(ATEN_NO_TEST "Do not build ATen test binaries" OFF)
+option(ATEN_NO_TEST "Do not build ATen test binaries" ON)
 option(BUILD_BINARY "Build C++ binaries" OFF)
 option(BUILD_DOCS "Build Caffe2 documentation" OFF)
 option(BUILD_CUSTOM_PROTOBUF "Build and use Caffe2's own protobuf under third_party" ON)
@@ -142,8 +142,8 @@ option(CLANG_CODE_COVERAGE "Compile C/C++ with clang code coverage flags" OFF)
 option(COLORIZE_OUTPUT "Colorize output during compilation" ON)
 option(USE_ASAN "Use Address Sanitizer" OFF)
 option(USE_TSAN "Use Thread Sanitizer" OFF)
-option(USE_CUDA "Use CUDA" ON)
-option(USE_ROCM "Use ROCm" ON)
+option(USE_CUDA "Use CUDA" OFF)
+option(USE_ROCM "Use ROCm" OFF)
 option(CAFFE2_STATIC_LINK_CUDA "Statically link CUDA libraries" OFF)
 cmake_dependent_option(
     USE_CUDNN "Use cuDNN" ON
@@ -216,7 +216,7 @@ cmake_dependent_option(
     USE_TENSORPIPE "Use TensorPipe. Only available if USE_DISTRIBUTED is on." ON
     "USE_DISTRIBUTED" OFF)
 option(USE_TBB "Use TBB" OFF)
-option(ONNX_ML "Enable traditional ONNX ML API." ON)
+option(ONNX_ML "Enable traditional ONNX ML API." OFF)
 option(HAVE_SOVERSION "Whether to add SOVERSION to the shared objects" OFF)
 
 # Linux distributions do not want too many embedded sources, in that sense we
@@ -379,11 +379,7 @@ endif()
 
 # INTERN_BUILD_ATEN_OPS is used to control whether to build ATen/TH operators.
 # It's disabled for caffe2 mobile library.
-if(INTERN_BUILD_MOBILE AND BUILD_CAFFE2_MOBILE)
-  set(INTERN_BUILD_ATEN_OPS OFF)
-else()
-  set(INTERN_BUILD_ATEN_OPS ON)
-endif()
+set(INTERN_BUILD_ATEN_OPS ON)
 
 # BUILD_CAFFE2_MOBILE is the master switch to choose between libcaffe2 v.s. libtorch mobile build.
 # When it's enabled it builds original libcaffe2 mobile library without ATen/TH ops nor TorchScript support;
@@ -394,14 +390,14 @@ if(INTERN_BUILD_MOBILE AND NOT BUILD_CAFFE2_MOBILE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_EXPORT")
   endif()
   set(BUILD_PYTHON OFF)
-  set(BUILD_CAFFE2_OPS OFF)
+  set(BUILD_CAFFE2_OPS ON)
   set(USE_DISTRIBUTED OFF)
   set(FEATURE_TORCH_MOBILE ON)
-  set(NO_API ON)
+  set(NO_API OFF)
   set(USE_FBGEMM OFF)
   set(USE_QNNPACK OFF)
-  set(INTERN_DISABLE_ONNX ON)
-  set(INTERN_DISABLE_AUTOGRAD ON)
+  set(INTERN_DISABLE_ONNX OFF)
+  set(INTERN_DISABLE_AUTOGRAD OFF)
   set(INTERN_USE_EIGEN_BLAS ON)
   # Disable developing mobile interpreter for actual mobile build.
   # Enable it elsewhere to capture build error.

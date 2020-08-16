@@ -23,7 +23,7 @@ set -e
 
 # Android specific flags
 if [ -z "$ANDROID_ABI" ]; then
-  ANDROID_ABI="armeabi-v7a with NEON"
+  ANDROID_ABI="arm64-v8a"
 fi
 ANDROID_NATIVE_API_LEVEL="21"
 echo "Build with ANDROID_ABI[$ANDROID_ABI], ANDROID_NATIVE_API_LEVEL[$ANDROID_NATIVE_API_LEVEL]"
@@ -61,10 +61,19 @@ CMAKE_ARGS=()
 
 if [ -z "${BUILD_CAFFE2_MOBILE:-}" ]; then
   # Build PyTorch mobile
-  CMAKE_ARGS+=("-DUSE_STATIC_DISPATCH=ON")
+  CMAKE_ARGS+=("-DUSE_STATIC_DISPATCH=OFF")
   CMAKE_ARGS+=("-DCMAKE_PREFIX_PATH=$($PYTHON -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')")
   CMAKE_ARGS+=("-DPYTHON_EXECUTABLE=$($PYTHON -c 'import sys; print(sys.executable)')")
-  CMAKE_ARGS+=("-DBUILD_CUSTOM_PROTOBUF=OFF")
+  CMAKE_ARGS+=("-DBUILD_CUSTOM_PROTOBUF=ON")
+
+    echo "Building protoc"
+  $CAFFE2_ROOT/scripts/build_host_protoc.sh
+  # Use locally built protoc because we'll build libprotobuf for the
+  # target architecture and need an exact version match.
+  CMAKE_ARGS+=("-DCAFFE2_CUSTOM_PROTOC_EXECUTABLE=$CAFFE2_ROOT/build_host_protoc/bin/protoc")
+
+
+
   # custom build with selected ops
   if [ -n "${SELECTED_OP_LIST}" ]; then
     SELECTED_OP_LIST="$(cd $(dirname $SELECTED_OP_LIST); pwd -P)/$(basename $SELECTED_OP_LIST)"
@@ -74,6 +83,7 @@ if [ -z "${BUILD_CAFFE2_MOBILE:-}" ]; then
       exit 1
     fi
     CMAKE_ARGS+=("-DSELECTED_OP_LIST=${SELECTED_OP_LIST}")
+
   fi
 else
   # Build Caffe2 mobile

@@ -1051,7 +1051,7 @@ void check_onnx_proto(const std::string& proto_string) {
     throw std::runtime_error("Invalid ONNX proto string.");
     return;
   }
-  onnx::checker::check_model(model);
+  //onnx::checker::check_model(model);
 }
 
 } // namespace jit
